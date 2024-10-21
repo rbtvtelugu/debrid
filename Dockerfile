@@ -12,20 +12,26 @@ RUN apt-get update && apt-get install -y \
     gnupg2 \
     unzip \
     chromium \
-    chromium-driver \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
+
+# Install ChromeDriver
+RUN CHROMEDRIVER_VERSION=$(wget -qO- https://chromedriver.storage.googleapis.com/LATEST_RELEASE) && \
+    wget -N https://chromedriver.storage.googleapis.com/$CHROMEDRIVER_VERSION/chromedriver_linux64.zip && \
+    unzip chromedriver_linux64.zip -d /usr/local/bin/ && \
+    chmod +x /usr/local/bin/chromedriver && \
+    rm chromedriver_linux64.zip
 
 # Set the working directory
 WORKDIR /app
 
-# Copy the requirements file
+# Copy the requirements file first for better caching
 COPY requirements.txt requirements.txt
 
 # Install Python packages
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the rest of your application code
+# Copy the rest of your application code into the container
 COPY . .
 
 # Specify the command to run your script
