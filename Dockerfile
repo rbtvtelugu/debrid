@@ -15,10 +15,11 @@ RUN apt-get update && apt-get install -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Install ChromeDriver
-RUN CHROMIUM_VERSION=$(wget -qO- https://chromedriver.storage.googleapis.com/LATEST_RELEASE) && \
-    CHROMEDRIVER_URL="https://chromedriver.storage.googleapis.com/$CHROMIUM_VERSION/chromedriver_linux64.zip" && \
-    wget -N $CHROMEDRIVER_URL && \
+# Install a specific version of ChromeDriver that matches the Chromium version
+# Check the installed version of Chromium and set the corresponding ChromeDriver version
+RUN CHROMIUM_VERSION=130.0.6723.58 && \
+    CHROMEDRIVER_VERSION=130.0.6723.24 && \
+    wget -N "https://chromedriver.storage.googleapis.com/$CHROMEDRIVER_VERSION/chromedriver_linux64.zip" && \
     unzip chromedriver_linux64.zip -d /usr/local/bin/ && \
     chmod +x /usr/local/bin/chromedriver && \
     rm chromedriver_linux64.zip
