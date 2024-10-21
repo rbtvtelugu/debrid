@@ -15,37 +15,45 @@ def setup_browser():
 
 def follow_dynamic_content(start_url, cookies=None, max_wait=30):
     browser = setup_browser()
+
+    try:
+        # Set cookies if provided
+        if cookies:
+            browser.get(start_url)  # First navigate to the start URL to set cookies
+            for cookie in cookies:
+                browser.add_cookie(cookie)
+
+        # Now navigate to the start URL again after setting cookies
+        browser.get(start_url)
+
+        # Monitor for dynamic content
+        visited_urls = set()
+        visited_urls.add(browser.current_url)
+
+        print(f"Starting URL: {browser.current_url}")
+
+        start_time = time.time()
+
+        while time.time() - start_time < max_wait:
+            # Monitor the current URL
+            current_url = browser.current_url
+            if current_url not in visited_urls:
+                print(f"Following URL: {current_url}")
+                visited_urls.add(current_url)
+                start_time = time.time()  # Reset wait time if a new URL is found
+
+                # Load the new page to check for more dynamic content
+                time.sleep(2)  # Give some time for the new content to load
+
+            # Scroll down the page to trigger dynamic loading
+            browser.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+            time.sleep(2)  # Allow some time for dynamic content to load
+
+    except Exception as e:
+        print(f"An error occurred: {e}")
     
-    # Set cookies if provided
-    if cookies:
-        browser.get(start_url)  # First navigate to the start URL to set cookies
-        for cookie in cookies:
-            browser.add_cookie(cookie)
-
-    # Now navigate to the start URL again after setting cookies
-    browser.get(start_url)
-
-    # Monitor for dynamic content
-    visited_urls = set()
-    visited_urls.add(browser.current_url)
-
-    print(f"Starting URL: {browser.current_url}")
-
-    start_time = time.time()
-
-    while time.time() - start_time < max_wait:
-        # Monitor the current URL
-        current_url = browser.current_url
-        if current_url not in visited_urls:
-            print(f"Following URL: {current_url}")
-            visited_urls.add(current_url)
-            start_time = time.time()  # Reset wait time if a new URL is found
-
-        # Scroll down the page to trigger dynamic loading
-        browser.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-        time.sleep(2)  # Allow some time for dynamic content to load
-
-    browser.quit()
+    finally:
+        browser.quit()  # Ensure the browser is closed even if an error occurs
 
 if __name__ == "__main__":
     start_url = "https://debridmediamanager.com/movie/tt14564000"  # Replace with your dynamic start URL
