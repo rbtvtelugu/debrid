@@ -5,7 +5,7 @@ FROM ubuntu:20.04
 ENV PYTHONUNBUFFERED=1
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install necessary packages
+# Install necessary packages and dependencies for Chrome and ChromeDriver
 RUN apt-get update && apt-get install -y \
     python3 \
     python3-pip \
@@ -14,14 +14,27 @@ RUN apt-get update && apt-get install -y \
     unzip \
     gnupg2 \
     chromium-browser \
+    chromium-chromedriver \
+    libxss1 \
+    libappindicator3-1 \
+    libatk-bridge2.0-0 \
+    libgtk-3-0 \
+    libx11-xcb1 \
+    libxcomposite1 \
+    libxcursor1 \
+    libxi6 \
+    libxtst6 \
+    libnss3 \
+    libxrandr2 \
+    libasound2 \
+    libxss1 \
+    libxdamage1 \
+    fonts-liberation \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Install ChromeDriver matching the installed Chromium version
-RUN wget -q "https://chromedriver.storage.googleapis.com/$(curl -s chromedriver.storage.googleapis.com/LATEST_RELEASE)/chromedriver_linux64.zip" -O /tmp/chromedriver.zip && \
-    unzip /tmp/chromedriver.zip -d /usr/local/bin/ && \
-    chmod +x /usr/local/bin/chromedriver && \
-    rm /tmp/chromedriver.zip
+# Create a symlink for ChromeDriver
+RUN ln -s /usr/bin/chromedriver /usr/local/bin/chromedriver
 
 # Set the working directory
 WORKDIR /app
